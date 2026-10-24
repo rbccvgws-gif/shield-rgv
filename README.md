@@ -34,3 +34,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## SMS / WhatsApp bot
+
+Forwarded messages are analyzed via a Twilio webhook at `POST /api/sms`.
+
+Environment variables (in addition to `GEMINI_API_KEY` / `SERPAPI_API_KEY`):
+
+- `TWILIO_AUTH_TOKEN` — required; used to verify requests really come from Twilio.
+- `TWILIO_WEBHOOK_URL` — the exact public URL configured in Twilio (e.g. `https://your-app.vercel.app/api/sms`). Set it if the app sits behind a proxy and the request URL differs.
+
+Twilio setup: point your number's (or WhatsApp sandbox's) "A message comes in" webhook to the URL above, method `POST`. Limits: 10 messages/hour per sender and 500/day overall (see `app/api/sms/route.js`; the limiter in `lib/rateLimit.js` is in-memory, so use a shared store like Redis if you deploy to multiple instances).
