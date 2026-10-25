@@ -1,6 +1,6 @@
-import { analyzeMessage, MAX_MESSAGE_LENGTH } from '@/lib/analyze';
-import { rateLimit } from '@/lib/rateLimit';
-import { isValidTwilioSignature, twimlReply } from '@/lib/twilio';
+import { analyzeMessage, MAX_MESSAGE_LENGTH } from '../../../lib/analyze';
+import { rateLimit } from '../../../lib/rateLimit';
+import { isValidTwilioSignature, twimlReply } from '../../../lib/twilio';
 
 const PER_SENDER = { limit: 10, windowMs: 60 * 60 * 1000 };
 const GLOBAL = { limit: 500, windowMs: 24 * 60 * 60 * 1000 };

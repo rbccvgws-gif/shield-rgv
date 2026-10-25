@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { analyzeMessage, MAX_MESSAGE_LENGTH } from '@/lib/analyze';
+import { analyzeMessage, MAX_MESSAGE_LENGTH } from '../../../lib/analyze';
 
 export async function POST(request) {
   try {
