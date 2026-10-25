@@ -120,6 +120,19 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const handlePasteAndCheck = async () => {
+    try {
+      const text = (await navigator.clipboard.readText()).trim()
+      if (!text) throw new Error('empty clipboard')
+      setMessage(text)
+      setClaimLocation('')
+      handleAnalyze(text, '')
+    } catch {
+      // Clipboard blocked or empty: let the user paste by hand instead.
+      document.querySelector('textarea')?.focus()
+    }
+  }
+
   const isHighRisk = (result?.analysis?.risk_score ?? 0) > 50
   const score = result?.analysis?.risk_score ?? 0
 
@@ -200,6 +213,15 @@ export default function App() {
                 ))}
               </div>
             )}
+
+            <button
+              type="button"
+              onClick={handlePasteAndCheck}
+              disabled={loading}
+              className={`${simpleMode ? 'min-h-20 rounded-2xl text-2xl' : 'min-h-12 rounded-xl text-sm'} mb-4 flex w-full items-center justify-center gap-2 border border-cyan-400/40 bg-cyan-400/10 px-4 font-bold text-cyan-200 transition-all hover:bg-cyan-400/20 disabled:cursor-wait disabled:opacity-70`}
+            >
+              📋 {lang === 'en' ? 'Paste copied message & check' : 'Pegar mensaje copiado y revisar'}
+            </button>
 
             <label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
               {lang === 'en' ? 'Suspicious message' : 'Mensaje sospechoso'}
