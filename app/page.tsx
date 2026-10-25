@@ -82,7 +82,9 @@ export default function App() {
     return () => clearInterval(interval)
   }, [loading])
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = async (overrideMessage?: string, overrideLocation?: string) => {
+    const msg = overrideMessage ?? message
+    const loc = overrideLocation ?? claimLocation
     setLoading(true)
     setTipIndex(0)
     setResult(null)
@@ -91,7 +93,7 @@ export default function App() {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, claimLocation }),
+        body: JSON.stringify({ message: msg, claimLocation: loc }),
       })
       setResult(await res.json())
     } catch (err) {
@@ -99,6 +101,24 @@ export default function App() {
     }
     setLoading(false)
   }
+
+  // When the installed app is opened from the phone's Share menu, the shared
+  // text arrives as ?title=&text=&url= — fill it in and check it right away.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const shared = [params.get('title'), params.get('text'), params.get('url')]
+      .filter(Boolean)
+      .join('\n')
+      .trim()
+    if (!shared) return
+    window.history.replaceState(null, '', '/')
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setMessage(shared)
+    setClaimLocation('')
+    handleAnalyze(shared, '')
+    /* eslint-enable react-hooks/set-state-in-effect */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const isHighRisk = (result?.analysis?.risk_score ?? 0) > 50
   const score = result?.analysis?.risk_score ?? 0
@@ -205,7 +225,7 @@ export default function App() {
             )}
 
             <button
-              onClick={handleAnalyze}
+              onClick={() => handleAnalyze()}
               disabled={loading}
               className={`${simpleMode ? 'min-h-24 rounded-2xl text-3xl md:text-4xl' : 'min-h-14 rounded-xl text-base'} group flex w-full items-center justify-center gap-3 bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 px-6 font-black tracking-tight text-slate-950 shadow-[0_12px_40px_rgba(45,212,191,0.18)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_50px_rgba(45,212,191,0.28)] disabled:cursor-wait disabled:opacity-70`}
             >
